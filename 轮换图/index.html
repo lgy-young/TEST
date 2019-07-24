@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>轮播图</title>
+		<style type="text/css">
+			*{ 
+				margin: 0; 
+				padding: 0; 
+				text-decoration: none; 
+			 }
+			body{
+				padding:20px;
+			}
+			#container{
+				width:600px; 
+				height:392px; 
+				border:3px solid #333; 
+				overflow: hidden; 
+				position:relative;
+				margin:0 auto; 
+			}
+			#list{
+				width: 4200px; 
+				height: 400px; 
+				position: absolute; 
+				z-index: 1;
+			}
+			#list img{
+				float:left;
+			}
+			#buttons{
+				position: absolute; 
+				height: 10px; width: 
+				100px; z-index: 2; 
+				bottom: 20px; 
+				left: 250px;
+			}
+			#buttons span{
+				cursor: pointer; 
+				float: left; 
+				border:1px solid #fff; 
+				width: 10px; 
+				height: 10px; 
+				border-radius: 50%; 
+				background: #333; 
+				margin-right: 5px;
+			}
+			#buttons .on{
+				background: orange;
+			}
+			.arrow{
+				cursor: pointer; 
+				display: none; 
+				line-height: 30px; 
+				text-align: center; 
+				font-size: 36px; 
+				font-weight: bold; 
+				width: 40px; 
+				height: 40px; 
+				position: absolute;
+				z-index: 2; 
+				top: 180px; 
+				color:white; 
+			}
+			#container:hover .arrow{
+				display:block;
+			}
+			#prev{
+				left:20px;
+			}
+			#next{
+				right: 20px;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function (){
+				var container = document.getElementById('container');
+				var list = document.getElementById('list');
+				var buttons = document.getElementById('buttons').getElementsByTagName('span');
+				var prev = document.getElementById('prev');
+				var next = document.getElementById('next');
+				var index = 1;//显示第几个小圆点
+				var changed = false;//切换状态值无切换
+				var timer;
+				
+				function showButton(){//点亮小圆点
+					for(var i = 0;i < buttons.length; i++){
+						if (buttons[i].className == 'on'){
+							buttons[i].className = '';
+							break;
+						}
+					}
+					buttons[index - 1].className = 'on';//改变classname改变小圆点的样式
+				}
+				
+				function change(offset){//切换函数
+					changed = true;
+					var newleft = parseInt(list.style.left) + offset;
+					
+					var time = 300;//位移总时间（ms）
+					var interval = 10;//位移间隔时间
+					var speed = offset/(time/interval);//每次的位移量   总偏移/次数
+					
+					function go(){
+						if((speed < 0 && parseInt(list.style.left) > newleft)||(speed > 0 && parseInt(list.style.left) < newleft)){
+							 list.style.left = parseInt(list.style.left) + speed + 'px';
+					           setTimeout(go,interval);//每隔interval执行一次go
+						}
+					else{
+					changed = false;
+					list.style.left = newleft + 'px';
+					
+				    if(newleft > -600){//归位
+				    	list.style.left = -3000 + 'px';
+				    }
+				    if(newleft < -3000){
+				    	list.style.left = -600 + 'px';
+				        }
+				      }
+					}
+					go();
+				}
+
+				function play(){//自动切换函数
+					timer = setInterval(function(){
+						next.onclick();
+					},3000);
+				}
+				
+				function stop(){//自动切换停止函数
+					clearInterval(timer);
+				}
+				
+				next.onclick = function() {//右箭头点击事件
+					if(index == 5){
+						index = 1;
+					}
+					else{
+						index += 1;
+					}
+					showButton();
+					if(!changed){
+						change(-600);
+					}
+				}
+				
+				prev.onclick = function() {//左箭头点击事件
+					if(index == 1){
+						index = 5;
+					}
+					else{
+						index -= 1;
+					}
+					showButton();
+					if(!changed){
+						change(600);
+					}
+				}
+				
+				//为小圆点添加点击事件
+				for(var i =0; i <buttons.length; i++){
+					buttons[i].onclick = function(){
+						//判断如果点击对应以打开图片，退出函数
+						if(this.classname == 'on'){
+							return;
+						}
+						//获取自定义或动态属性
+					   var myindex = parseInt(this.getAttribute('index'));
+					   var offset = -600 * (myindex - index);
+					   
+					   index = myindex;
+					   showButton();
+					   if(!changed){
+					   	change(offset);
+					   } 
+					}
+				}
+				container.onmouseover = stop;//鼠标移动到容器内停止自动切换
+				container.onmouseout = play;//鼠标在容器外执行自动切换
+				
+				play();
+			}
+		</script>
+		
+	</head>
+	<body>
+		<div id = "container">
+			<div id="list" style="left:-600px;">
+				<img src="img/5.jpg" width="600px" height="392px"/>
+				<img src="img/1.jpg" width="600px" height="392px"/>
+				<img src="img/2.jpg" width="600px" height="392px"/>
+				<img src="img/3.jpg" width="600px" height="392px"/>
+				<img src="img/4.jpg" width="600px" height="392px"/>
+				<img src="img/5.jpg" width="600px" height="392px"/>
+				<img src="img/1.jpg" width="600px" height="392px"/>	
+			</div>
+			<div id = "buttons">
+				<span index="1" class="on"></span>
+				<span index="2"></span>
+				<span index="3"></span>
+				<span index="4"></span>
+				<span index="5"></span>
+			</div>
+			<a href="javascript:;" class="arrow" id="prev">&lt;</a>
+			<a href="javascript:;" class="arrow" id="next">&gt;</a>
+		</div>
+	</body>
+</html>
